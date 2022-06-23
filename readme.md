@@ -1,0 +1,1 @@
+This document explains in details the structure defined for the project along with brief details about each file and its usage.

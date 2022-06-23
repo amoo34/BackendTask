@@ -1,0 +1,43 @@
+{
+  "name": "nodejs-project-template",
+  "version": "1.0.0",
+  "description": "Default project template for NodeJS",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AHMED3T/nodejs-project-template.git"
+  },
+  "keywords": [
+    "nodejs",
+    "mongodb",
+    "restful",
+    "backend",
+    "express",
+    "template"
+  ],
+  "author": "Ahmed Rasool",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "bcryptjs": "^2.4.3",
+    "chalk": "^4.1.2",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "joi": "^17.4.2",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.1",
+    "mongoose": "^5.13.7",
+    "morgan": "^1.10.0",
+    "node-cron": "^3.0.0",
+    "socket.io": "^4.1.3",
+    "validator": "^13.6.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "nodemon": "^2.0.12"
+  }
+}
