@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { logSuccess, logInfo, logError } = require('./console.helpers');
 
 // importing required config dependencies
-const { MONGO_ATLAS_CONNECTION_URI } = require('../../dependencies/config');
+// const { MONGO_ATLAS_CONNECTION_URI } = require('../../dependencies/config');
 
 
 

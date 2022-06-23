@@ -4,7 +4,7 @@ const mongoose = require(`mongoose`);
 // const { logWarning, console.log } = require(`dependencies/helpers/console.helpers`);
 
 // importing required config params
-const { HTTP_STATUS_CODES: { SUCCESS, CREATED, NOT_FOUND, CONFLICT, SERVER_ERROR } } = require(`../config`);
+// const { HTTP_STATUS_CODES: { , CREATED, NOT_FOUND, CONFLICT, SERVER_ERROR } } = require(`../config`);
 
 // importing required models
 const User = require(`../../api/models/user.model`);
@@ -30,7 +30,7 @@ const saveUser = async (userData) => {
     // returning saved response to it's caller 
     return {
 
-      status: CREATED,
+      status: 401,
       data: result
 
     };
@@ -48,7 +48,7 @@ const saveUser = async (userData) => {
     const duplicateErrorFields = (Object.keys(error.keyValue)).join(`, `);
 
     // setting value of status and description
-    const [status, err] = [isDuplicateError ? CONFLICT : SERVER_ERROR, isDuplicateError ? `user creation failed due to duplicate ${duplicateErrorFields}.` : `Unhanlded exception occurred on the server.`];
+    const [status, err] = [isDuplicateError ? 409 : 500, isDuplicateError ? `user creation failed due to duplicate ${duplicateErrorFields}.` : `Unhanlded exception occurred on the server.`];
 
     // returning response to indicate failure to its caller
     return {
@@ -373,7 +373,7 @@ const findUserById = async (userId) => {
       // returning response to its caller with error message
       return {
 
-        status: NOT_FOUND,
+        status: 404,
         error: `Requested data not found in database.`
 
       };
@@ -397,7 +397,7 @@ const findUserById = async (userId) => {
     // returning response to indicate failure to its caller
     return {
 
-      status: SERVER_ERROR,
+      status: 500,
       error: `Unhandled exception occurred on the server.`
 
     };
@@ -663,7 +663,7 @@ const findUsers = async (queryMetadata) => {
     // returning response to indicate failure to its caller
     return {
 
-      status: SERVER_ERROR,
+      status: 500,
       error: `Unhandled exception occurred on the server.`
 
     };
@@ -785,7 +785,7 @@ const findUserByIdAndUpdate = async (updateData, userId, _updater) => {
 
       return {
 
-        status: NOT_FOUND,
+        status: 404,
         error: `Requested data not found in database.`
 
       };
@@ -813,7 +813,7 @@ const findUserByIdAndUpdate = async (updateData, userId, _updater) => {
     const duplicateErrorFields = (Object.keys(error.keyValue)).join(`, `);
 
     // setting value of status and description
-    const [status, err] = [isDuplicateError ? CONFLICT : SERVER_ERROR, isDuplicateError ? `User update failed due to duplicate ${duplicateErrorFields}.` : `Unhandled exception occurred on the server.`];
+    const [status, err] = [isDuplicateError ? 409  : 500, isDuplicateError ? `User update failed due to duplicate ${duplicateErrorFields}.` : `Unhandled exception occurred on the server.`];
 
     // returning response to indicate failure to its caller
     return {
@@ -879,7 +879,7 @@ const saveUserNote = async (note, userId, _creator) => {
 
       return {
 
-        status: NOT_FOUND,
+        status: 404,
         error: `Requested data not found in database.`
 
       };
@@ -889,7 +889,7 @@ const saveUserNote = async (note, userId, _creator) => {
     // returning saved response to it's caller 
     return {
 
-      status: CREATED,
+      status: 401,
       data: result.notes
 
     };
@@ -904,7 +904,7 @@ const saveUserNote = async (note, userId, _creator) => {
     // returning response to indicate failure to its caller
     return {
 
-      status: SERVER_ERROR,
+      status: 500,
       error: `Unhandled exception occurred on the server.`
 
     };
@@ -993,7 +993,7 @@ const findUserNotesById = async (userId) => {
 
       return {
 
-        status: NOT_FOUND,
+        status: 404,
         error: `Requested data not found in database.`
 
       };
@@ -1020,7 +1020,7 @@ const findUserNotesById = async (userId) => {
     // returning response to indicate failure to its caller
     return {
 
-      status: SERVER_ERROR,
+      status: 500,
       error: `Unhandled exception occurred on the server.`
 
     };
@@ -1083,7 +1083,7 @@ const findUserAndUpdateNoteById = async (note, userId, _updater, noteId) => {
 
       return {
 
-        status: NOT_FOUND,
+        status: 404,
         error: `Requested data not found in database.`
 
       };
@@ -1108,7 +1108,7 @@ const findUserAndUpdateNoteById = async (note, userId, _updater, noteId) => {
     // returning response to indicate failure to its caller
     return {
 
-      status: SERVER_ERROR,
+      status: 500,
       error: `Unhandled exception occurred on the server.`
 
     };
@@ -1170,7 +1170,7 @@ const findUserAndDeleteNoteById = async (userId, _updater, noteId) => {
 
       return {
 
-        status: NOT_FOUND,
+        status: 404,
         error: `Requested data not found in database.`
 
       };
@@ -1195,7 +1195,7 @@ const findUserAndDeleteNoteById = async (userId, _updater, noteId) => {
     // returning response to indicate failure to its caller
     return {
 
-      status: SERVER_ERROR,
+      status: 500,
       error: `Unhandled exception occurred on the server.`
 
     };
@@ -1315,7 +1315,7 @@ const getAgentNames = async (query) => {
     // returning response to indicate failure to its caller
     return {
 
-      status: SERVER_ERROR,
+      status: 500,
       error: `Unhandled exception occurred on the server.`
 
     };
@@ -1339,7 +1339,7 @@ const findUserByEmail = async (email, queryScope) => {
 
       return {
 
-        status: NOT_FOUND,
+        status: 404,
         error: `Requested data not found in database.`
 
       };

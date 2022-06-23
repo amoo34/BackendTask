@@ -1,5 +1,5 @@
 // importing required data dependencies
-const { DB_USERNAME, DB_PASSWORD } = require(`./credentials`);
+// const { DB_USERNAME, DB_PASSWORD } = require(`./credentials`);
 
 // setting allowed app modes
 const ALLOWED_APP_MODES = [`DEV`, `STAGE`, `PROD`];
@@ -15,10 +15,6 @@ module.exports = {
   APP_MODE,
 
   NODE_PORT: 3000,
-
-  API_BASE_URL: APP_MODE === `DEV` ? `http://localhost:3000` : APP_MODE === `STAGE` ? `https://www.staging.example.com` : `https://www.example.com`,
-
-  MONGO_ATLAS_CONNECTION_URI: `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@example-0.mongodb.net/${APP_MODE === `PROD` ? `prod-db-name` : `dev-db-name`}?retryWrites=true&w=majority`,
 
   ALLOWED_APP_MODES,
 

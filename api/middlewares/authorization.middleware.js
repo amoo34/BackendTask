@@ -2,7 +2,7 @@
 const { logInfo, logError } = require(`../../dependencies/helpers/console.helpers`);
 
 // importing required config params
-const { HTTP_STATUS_CODES: { UNAUTHORIZED, FORBIDDEN, SERVER_ERROR } } = require(`../../dependencies/config`);
+// const { HTTP_STATUS_CODES: { UNAUTHORIZED, FORBIDDEN, SERVER_ERROR } } = require(`../../dependencies/config`);
 
 
 const superAdmin = async (req, res, next) => {
@@ -12,12 +12,12 @@ const superAdmin = async (req, res, next) => {
     if (user.role === "ADMIN") {
       next();
     } else {
-      return res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
+      return res.status(401).json({
         err: 'Sorry, you are not to authorized for this action',
       });
     }
   } catch (error) {
-    return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+    return res.status(500).json({
       err: 'Internal server error',
     });
   }

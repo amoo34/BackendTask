@@ -2,7 +2,7 @@
 const { logInfo, logError } = require(`../../dependencies/helpers/console.helpers`);
 
 // importing required config params
-const { HTTP_STATUS_CODES: { BAD_REQUEST }, ALLOWED_VALIDATION_SCHEMA_SCOPES: { BODY, PARAMS, NONE } } = require(`../../dependencies/config`);
+// const { ALLOWED_VALIDATION_SCHEMA_SCOPES: { BODY, PARAMS, NONE } } = require(`../../dependencies/config`);
 
 
 
@@ -26,7 +26,7 @@ const validateInput = (inputSchema, schemaScope) => {
         logError(`Incoming request body can't be empty.`);
 
         // returning the response with an error message
-        return res.status(BAD_REQUEST).json({
+        return res.status(400).json({
 
           hasError: true,
           message: `ERROR: Data Validation Failed.`,
@@ -58,7 +58,7 @@ const validateInput = (inputSchema, schemaScope) => {
       logError(`${errorDescription}.`);
 
       // returning the response with an error message
-      return res.status(BAD_REQUEST).json({
+      return res.status(400).json({
 
         hasError: true,
         message: `ERROR: Data Validation Failed.`,
@@ -86,7 +86,7 @@ const validateInput = (inputSchema, schemaScope) => {
         logError(`Incoming request path params can't be empty.`);
 
         // returning the response with an error message
-        return res.status(BAD_REQUEST).json({
+        return res.status(400).json({
 
           hasError: true,
           message: `ERROR: Data Validation Failed.`,
@@ -118,7 +118,7 @@ const validateInput = (inputSchema, schemaScope) => {
       logError(`${errorDescription}.`);
 
       // returning the response with an error message
-      return res.status(BAD_REQUEST).json({
+      return res.status(400).json({
 
         hasError: true,
         message: `ERROR: Data Validation Failed.`,
@@ -142,7 +142,7 @@ const validateInput = (inputSchema, schemaScope) => {
   }
 
   // returning the function upon invocation by the router
-  return schemaScope === BODY ? requestBodyValidator : schemaScope === PARAMS ? requestPathParamsValidator : requestDummyValidator;
+  return schemaScope === "BODY" ? requestBodyValidator : schemaScope === "PARAMS" ? requestPathParamsValidator : requestDummyValidator;
 
 }
 
