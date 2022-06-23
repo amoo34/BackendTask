@@ -357,7 +357,6 @@ const findUserByIdAndDelete = async (updateData, userId) => {
 
     const deletedUser = await TimeLog.findByIdAndDelete(timeLogId).lean();
 
-    return deletedUser;
 
     // returning fetched data to its caller
     return {

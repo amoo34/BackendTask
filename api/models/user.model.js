@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
     trim: true,
     uppercase: true
   },
-  phone: {
+  phoneNo: {
     type: String,
     sparse: true
   },
