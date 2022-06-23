@@ -31,7 +31,6 @@ async function seedDB() {
         let usersData = [];
 
         for (let i = 0; i < 10000; i++) {
-            // userId: faker.datatype.uuid(),
             let dummyUser = {
                 name : faker.internet.userName(),
                 email : faker.internet.email(),

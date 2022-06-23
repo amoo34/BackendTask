@@ -37,10 +37,11 @@ const specificUserSchema = Joi.object({
 const updateUserSchema = Joi.object({
 
   name: Joi.string(),
-  email: Joi.string().email(),
+  email: Joi.string(),
+  password: Joi.string(),
   address: Joi.string(),
-  phone: Joi.string(),
-  role: Joi.string(),
+  phoneNo: Joi.string(),
+  role: Joi.string()
 
 });
 
@@ -48,8 +49,8 @@ const updateUserSchema = Joi.object({
 const allUsersSchema = Joi.object({
 
   // search: Joi.string().custom(jsonObjValidation, `Search validation`),
-  sort: Joi.string(),
-  offset: Joi.number().min(1),
+  // sort: Joi.string(),
+  // offset: Joi.number().min(1),
   page: Joi.number().min(1)
 
 });

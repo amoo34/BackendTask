@@ -30,13 +30,13 @@ userRouter.post(`/addUser`,   validateInput(newUserSchema, `BODY`), addUser);
 // 1-> route to fetch a specific user from database via _id
 // 2-> route to fetch all users as an array from database
 // userRouter.get(`/:userId`, grantAccessTo(USERS_READ), validateInput(specificUserSchema, `PARAMS`), fetchSpecificUser);
-userRouter.get(`/`,superAdmin, validateInput(allUsersSchema, `QUERY`), getAllUsers);
+userRouter.get(`/getUsers`,superAdmin, validateInput(allUsersSchema, `QUERY`), getAllUsers);
 
 // 1-> route to update a specific user in the database via _id
-userRouter.patch(`/:userId`, superAdmin,  validateInput(specificUserSchema, `PARAMS`), validateInput(updateUserSchema, `BODY`), updateUserById);
+userRouter.patch(`/updateUser/:userId`, superAdmin,  validateInput(specificUserSchema, `PARAMS`), validateInput(updateUserSchema, `BODY`), updateUserById);
 
 // 1-> route to delete a specific user from database via _id
-userRouter.delete(`/:userId`, validateInput(specificUserSchema, `PARAMS`), deleteUserById);
+userRouter.delete(`/deleteUser/:userId`, validateInput(specificUserSchema, `PARAMS`), deleteUserById);
 
 
 
