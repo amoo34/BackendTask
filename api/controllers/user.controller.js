@@ -9,7 +9,7 @@ const mongoose = require(`mongoose`);
 const { HTTP_STATUS_CODES: { SUCCESS, CREATED, NOT_FOUND, BAD_REQUEST, CONFLICT, SERVER_ERROR } } = require(`../../dependencies/config`);
 
 // importing required data services
-const { saveUser, findUserById, findUsers, findUserByIdAndUpdate } = require(`../../dependencies/internal-services/user.services`);
+const { saveUser, findUserById, findUsers, findUserByIdAndUpdate,userLoginService } = require(`../../dependencies/internal-services/user.services`);
 
 // importing required models
 const User = require(`../models/user.model`);
@@ -127,32 +127,16 @@ const addUser = async (req, res, next) => {
 const loginUser = async (req, res, next) => {
 
   try {
+    // fetching required data via incoming token data
+    // const { _id } = req.tokenData;
 
-    // Check if User already Exists
-    const userAlreadyExists = await User.findOne({ email: email });
-
-    if (userAlreadyExists) {
-
-      // returning the response with an error message
-      return res.status(BAD_REQUEST).json({
-
-        hasError: true,
-        message: `ERROR: User already exists with same email.`,
-        error: {
-
-          error
-
-        }
-
-      });
-
-    }
-
-    // calling data service to save new user in the database
-    const { status, data, error } = await saveUser(req.body);
+    const { status, data, error } = await userLoginService(
+      req.body,
+      (_id = new mongoose.Types.ObjectId())
+    );
 
     // checking the result of the operation
-    if (status === SERVER_ERROR) {
+    if (status === 500) {
       // this code runs in case data service failed due to unknown database
       // error
 
@@ -160,71 +144,41 @@ const loginUser = async (req, res, next) => {
       console.log(`Requested operation failed. Unknown database error.`);
 
       // returning the response with an error message
-      return res.status(SERVER_ERROR).json({
-
+      return res.status(500).json({
         hasError: true,
         message: `ERROR: Requested operation failed.`,
         error: {
-
-          error
-
-        }
-
+          error,
+        },
       });
-
-    } else if (status === CONFLICT) {
-      // this code runs in case data service failed due to duplication value
+    } else if (status === 401) {
+      // this code runs in case data service failed due to duplicate value
 
       // logging error message to the console
-      console.log(`Requested operation failed. User with duplicate field(s) exists.`);
+      console.log(`User Auth Failed.`);
 
       // returning the response with an error message
-      return res.status(CONFLICT).json({
-
+      return res.status(401).json({
         hasError: true,
         message: `ERROR: Requested operation failed.`,
         error: {
-
-          error
-
-        }
-
+          error,
+        },
       });
-
     }
 
     // returning the response with success message
-    return res.status(CREATED).json({
-
-      hasError: false,
-      message: `SUCCESS: Requested operation successful.`,
-      data: {
-
-        user: data
-
-      }
-
+    return res.status(200).json({
+      jwt: data,
     });
-
   } catch (error) {
-    // this code runs in case of an error @ runtime
-
-    // logging error messages to the console
-    console.log(`ERROR @ loginUser -> user.controllers.js`, error);
-
-    // returning response with an error message
-    return res.status(SERVER_ERROR).json({
-
+    return res.status(500).json({
       hasError: true,
       message: `ERROR: Requested operation failed.`,
       error: {
-
-        error: `An unhandled exception occured on the server.`
-
-      }
-
+        error: `An unhandled exception occured on the server.`,
+      },
     });
-
   }
 
 }

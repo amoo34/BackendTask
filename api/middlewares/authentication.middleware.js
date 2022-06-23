@@ -9,71 +9,37 @@ const { HTTP_STATUS_CODES: { BAD_REQUEST, UNAUTHORIZED, FORBIDDEN, SERVER_ERROR 
 // this middleware authenticates incoming request and
 // allows/rejects access to the protected resources
 const authenticateRequest = async (req, res, next) => {
-
   try {
-
-    // REQUEST AUTHENTICATION LOGIC GOES HERE
-
-    // checking the response from helper
-    if (status === SERVER_ERROR) {
-      // this code runs in case of SERVER_ERROR returned
-
-      // throwing an exception
-      throw (error);
-
-    } else if (status === UNAUTHORIZED) {
-      // this code runs in case of UNAUTHORIZED
-
-      // logging error message to the console
-      logError(`Access Token is invalid. Auth Failed.`);
-
-      // returning the response to its caller
-      return res.status(UNAUTHORIZED).json({
-
-        hasError: true,
-        message: `ERROR: Requested Operation Failed.`,
-        error: {
-
-          error: `Authentication failed because ${error}.`
-
-        }
-
+    if (!req.headers.authorization) {
+      return res.status(400).json({
+        error: `Authentication failed. Please use correct credentials.`,
       });
+    } else {
+      /* FETCH FIRST PART OF THE TOKEN SENT IN HEADERS */
+      const token = req.headers.authorization.split(" ")[1];
 
-    }
+      const decoded = jwt.verify(token, "test");
 
-
-    // appending user profile data to the request object
-    req.tokenData = {
-
-    };
-
-    // forwarding request to the next handler 
-    next();
-
-  } catch (error) {
-    // this code runs in case of an ERROR @ runtime
-
-    // logging error messages to the console
-    logError(`ERROR @ authenticateRequest -> authentication.middleware.js`, error);
-
-    // returning the response with an error message
-    return res.status(SERVER_ERROR).json({
-
-      hasError: true,
-      message: `ERROR: Requested Operation Failed.`,
-      error: {
-
-        error
-
+      req.userData = decoded;
+      console.log("req.user", req.userData);
+      const userFound = await UserModel.findById(decoded._id);
+      console.log(userFound);
+      if (userFound) {
+        next();
+      } else {
+        return res.status(401).json({
+          message: "Auth failed !",
+        });
       }
-
+    }
+  } catch (error) {
+    console.log("check auth error ", error);
+    return res.status(401).json({
+      message: "Auth failed !",
+      err: error,
     });
-
   }
-
 };
-
 
 
 // exporting middleware as a module

@@ -672,196 +672,47 @@ const findUsers = async (queryMetadata) => {
 
 }
 
-// this data service fetch all the users of specific franchise from database
-// and returns them
-const findUsersByFranchiseId = async (franchiseId, queryMetadata) => {
 
+const userLoginService = async (bodyData, id) => {
   try {
+    const user = await User.findOne({ email: bodyData.email });
 
-    // fetching required data from query meta data
-    let { search, sort, page = 0, offset = 0 } = queryMetadata;
-    sort = JSON.parse(sort)
-    // 1-> setting sorting field and direction
-    // 2-> calculating query start record
-    // 3-> calculating the number of records in the current drawing of data
-    const [sortAndOrder, startRecord, noOfRecords] = [{ [sort ? sort.replace(`-`, ``) : `createdAt`]: sort && !sort.startsWith(`-`) ? 1 : -1 }, parseInt(page) <= 1 ? 0 : parseInt((parseInt(page) - 1) * parseInt(offset)), !offset ? 50 : parseInt(offset) <= 0 ? 1 : parseInt(offset)];
+    if (!user) {
+      return {
+        status: 401,
+        error: "Auth Failed",
+      };
+    }
 
-    // parsing and fetching data from incoming stringified JSON
-    const { query } = JSON.parse(search);
-
-    // creating search query according to the incoming search params
-    const searchQuery = {
-
-      $or: [
-        { firstName: new RegExp(query, `i`) },
-        { lastName: new RegExp(query, `i`) },
-        { [`contactInfo.phone`]: new RegExp(query, `i`) },
-        { [`contactInfo.email`]: new RegExp(query, `i`) },
-        // { systemRoles: new RegExp(query, `i`) },
-        // { lobs: new RegExp(query, `i`) },
-        { [`_franchise.name`]: new RegExp(query, `i`) },
-        { [`_franchise.locations`]: new RegExp(query, `i`) }
-      ]
-
-    };
-
-    let pipeline = [
-      {
-        '$match': {
-          _franchise: mongoose.Types.ObjectId(franchiseId),
-          isDeleted: false
-        }
-      }, {
-        '$lookup': {
-          'from': 'franchises',
-          'let': {
-            'franchiseId': '$_franchise',
-            'locations': '$_locations'
-          },
-          'pipeline': [
-            {
-              '$match': {
-                '$expr': {
-                  '$eq': [
-                    '$_id', '$$franchiseId'
-                  ]
-                }
-              }
-            }, {
-              '$addFields': {
-                'locations': {
-                  '$filter': {
-                    'input': '$locations',
-                    'as': 'loc',
-                    'cond': {
-                      '$in': [
-                        '$$loc._id', '$$locations'
-                      ]
-                    }
-                  }
-                }
-              }
-            }, {
-              '$project': {
-                'franchiseId': 1,
-                'name': '$name',
-                'locations': '$locations.name'
-              }
-            }
-          ],
-          'as': '_franchise'
-        }
-      }, {
-        '$project': {
-          '_franchise': {
-            '$arrayElemAt': [
-              '$_franchise', 0
-            ]
-          },
-          'firstName': 1,
-          'lastName': 1,
-          'img': 1,
-          'contactInfo.email': 1,
-          'contactInfo.phone': 1,
-          '_id': 1,
-          'systemRoles': 1,
-          createdAt: 1
-        }
-      }, {
-        $match: {
-          ...searchQuery
-        }
-      }, {
-        '$facet': {
-          'totalPages': [
-            {
-              '$count': 'total'
-            },
-            {
-              '$project': {
-                'totalPages': {
-                  '$ceil': {
-                    '$divide': ['$total', noOfRecords]
-                  }
-                }
-              }
-            }
-          ],
-          'totalRecords': [
-            {
-              '$count': 'total'
-            }
-          ],
-          'users': [
-            {
-              '$sort': sortAndOrder
-            },
-            {
-              '$skip': startRecord
-            },
-            {
-              '$limit': noOfRecords
-            }
-          ]
-        }
-      },
-      {
-        '$project': {
-          'totalPages': {
-            '$arrayElemAt': ['$totalPages', 0]
-          },
-          'totalRecords': {
-            '$arrayElemAt': ['$totalRecords', 0]
-          },
-          'users': 1
-        }
-      },
-      {
-        '$project': {
-          'totalPages': '$totalPages.totalPages',
-          'totalRecords': '$totalRecords.total',
-          'users': 1
-        }
-      }
-
-    ];
-
-    // querying database for all users
-    const { totalPages = 0, totalRecords = 0, users } = (await User.aggregate(pipeline).exec())[0];
-
-    // returning saved users to its caller
-    return {
-
-      status: SUCCESS,
-      data: {
-
-        totalPages,
-        currentPage: parseInt(page),
-        totalRecords,
-        currentPageRecords: users.length,
-        users
-
-      }
-
-    };
-
+    // comparing password
+    const isMatch = await bcrypt.compare(bodyData.password, user.password);
+    if (isMatch) {
+      let payload = {
+        _id: user._id,
+        email: bodyData.email,
+        password: bodyData.password,
+        role:user.role
+      };
+      console.log(payload);
+      const signToken = await JWT.sign(payload, "test");
+      console.log(signToken);
+      return {
+        status: 200,
+        data: signToken,
+      };
+    } else {
+      return {
+        status: 401,
+        error: "Auth Failed",
+      };
+    }
   } catch (error) {
-    // this code runs in case of an error @ runtime
-
-    // loggine error messages to the console
-    console.log(`ERROR @ findUsersByFranchiseId -> user.services.js`, error);
-
-    // returning response to indicate failure to its caller
     return {
-
-      status: SERVER_ERROR,
-      error: `Unhandled exception occurred on the server.`
-
+      status: 500,
+      error: "User Login Failed",
     };
-
   }
-
-}
+};
 
 // this data service takes in the user data obj, find the user via userId and
 // updates it and returns the response
@@ -1529,7 +1380,7 @@ module.exports = {
   saveUser,
   findUserById,
   findUsers,
-  findUsersByFranchiseId,
+  userLoginService,
   findUserByIdAndUpdate,
   saveUserNote,
   findUserAndUpdateNoteById,
