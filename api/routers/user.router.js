@@ -1,13 +1,10 @@
 // importing required modules
 const express = require(`express`);
 
-// importing required middlewares
+// importing Required Middlewares
 const { authenticateRequest } = require(`../middlewares/authentication.middleware`);
 const { superAdmin } = require(`../middlewares/authorization.middleware`);
 const { validateInput } = require(`../middlewares/input-validation.middleware`);
-
-// importing required permissions
-// const { USERS_CREATE, USERS_READ, USERS_UPDATE, USERS_DELETE } = require(`../../dependencies/system-permissions`);
 
 // importing required schemas
 const { newUserSchema, loginUserSchema, specificUserSchema, updateUserSchema, allUsersSchema } = require(`../../dependencies/input-validation-schemas/user.schemas`);
@@ -22,21 +19,24 @@ const userRouter = express.Router();
 
 
 
-// 1-> route to login a user
-// 2-> route to add a new user in the database
+// -----------------------------------ROUTES--------------------------------------------------
+// Route to Login User
 userRouter.post(`/login`,  validateInput(loginUserSchema, `BODY`), loginUser);
-userRouter.post(`/addUser`, authenticateRequest,  validateInput(newUserSchema, `BODY`), addUser);
 
-// 1-> route to fetch a specific user from database via _id
-// 2-> route to fetch all users as an array from database
-// userRouter.get(`/:userId`, grantAccessTo(USERS_READ), validateInput(specificUserSchema, `PARAMS`), fetchSpecificUser);
-userRouter.get(`/getUsers`,authenticateRequest, superAdmin, validateInput(allUsersSchema, `QUERY`), getAllUsers);
+// Route to Add User
+userRouter.post(`/addUser`,  validateInput(newUserSchema, `BODY`), addUser);
 
-// 1-> route to update a specific user in the database via _id
-userRouter.patch(`/updateUser/:userId`, authenticateRequest, superAdmin,  validateInput(specificUserSchema, `PARAMS`), validateInput(updateUserSchema, `BODY`), updateUserById);
+// Route to get a Specific User
+userRouter.get(`/getUser/:userId`,authenticateRequest,validateInput(specificUserSchema, `PARAMS`), fetchSpecificUser);
 
-// 1-> route to delete a specific user from database via _id
-userRouter.delete(`/deleteUser/:userId`,authenticateRequest, validateInput(specificUserSchema, `PARAMS`), deleteUserById);
+// Route to get All Users
+userRouter.get(`/getUsers`, authenticateRequest, superAdmin, validateInput(allUsersSchema, `QUERY`), getAllUsers);
+
+// Route to update a Specific User
+userRouter.patch(`/updateUser/:userId`, authenticateRequest, validateInput(specificUserSchema, `PARAMS`), validateInput(updateUserSchema, `BODY`), updateUserById);
+
+// Route to Delete a Specific User
+userRouter.delete(`/deleteUser/:userId`,authenticateRequest,validateInput(specificUserSchema, `PARAMS`), deleteUserById);
 
 
 

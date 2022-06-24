@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express();
-
 const cors = require("cors");
 const morgan = require(`morgan`);
 const {
@@ -8,13 +7,16 @@ const {
   disconnectDatabase,
 } = require(`./dependencies/helpers/database.helpers.js`);
 
+// Get Routers
 const { userRouter } = require(`./api/routers/user.router`);
 
-// app.use(morgan("dev"));
+
 // app.use(express.json());
 
 (async () => {
   try {
+
+    app.use(morgan("dev"));
     app.use(function (req, res, next) {
       res.header("Access-Control-Allow-Origin", "*");
       res.header(
@@ -27,7 +29,6 @@ const { userRouter } = require(`./api/routers/user.router`);
       }
       next();
     });
-
     app.use(
       express.json({
         limit: "5mb",
@@ -40,8 +41,9 @@ const { userRouter } = require(`./api/routers/user.router`);
     // making connection to database
     await connectDatabase();
     console.log("Connet");
+
     app.listen(3001, () => {
-      console.log("Listening at Port 3000");
+      console.log("Listening at Port 3001");
     });
   } catch (error) {}
 })();

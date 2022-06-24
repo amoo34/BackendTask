@@ -6,10 +6,10 @@ const mongoose = require(`mongoose`);
 
 
 // importing response status codes
-const { HTTP_STATUS_CODES: { SUCCESS, CREATED, NOT_FOUND, BAD_REQUEST, CONFLICT, SERVER_ERROR } } = require(`../../dependencies/config`);
+// const { HTTP_STATUS_CODES: { SUCCESS, CREATED, NOT_FOUND, BAD_REQUEST, CONFLICT, SERVER_ERROR } } = require(`../../dependencies/config`);
 
 // importing required data services
-const { saveUser, findUserById, findUsers, findUserByIdAndUpdate,userLoginService } = require(`../../dependencies/internal-services/user.services`);
+const { saveUser, findUserById, findUsers,findUserByIdAndDelete, findUserByIdAndUpdate,userLoginService } = require(`../../dependencies/internal-services/user.services`);
 
 // importing required models
 const User = require(`../models/user.model`);
@@ -17,7 +17,6 @@ const User = require(`../models/user.model`);
 
 
 // this controller takes data via incoming request body and creates a new user
-// in the database
 const addUser = async (req, res, next) => {
 
   try {
@@ -32,7 +31,7 @@ const addUser = async (req, res, next) => {
     if (userAlreadyExists) {
 
       // returning the response with an error message
-      return res.status(BAD_REQUEST).json({
+      return res.status(409).json({
 
         hasError: true,
         message: `ERROR: User already exists with same email.`
@@ -45,7 +44,7 @@ const addUser = async (req, res, next) => {
     const { status, data, error } = await saveUser(req.body);
 
     // checking the result of the operation
-    if (status === SERVER_ERROR) {
+    if (status === 500) {
       // this code runs in case data service failed due to unknown database
       // error
 
@@ -53,26 +52,24 @@ const addUser = async (req, res, next) => {
       console.log(`Requested operation failed. Unknown database error.`);
 
       // returning the response with an error message
-      return res.status(SERVER_ERROR).json({
+      return res.status(500).json({
 
         hasError: true,
         message: `ERROR: Requested operation failed.`,
         error: {
-
           error
-
         }
 
       });
 
-    } else if (status === CONFLICT) {
+    } else if (status === 409) {
       // this code runs in case data service failed due to duplication value
 
       // logging error message to the console
       console.log(`Requested operation failed. User with duplicate field(s) exists.`);
 
       // returning the response with an error message
-      return res.status(CONFLICT).json({
+      return res.status(409).json({
 
         hasError: true,
         message: `ERROR: Requested operation failed.`,
@@ -87,14 +84,12 @@ const addUser = async (req, res, next) => {
     }
 
     // returning the response with success message
-    return res.status(CREATED).json({
+    return res.status(201).json({
 
       hasError: false,
       message: `SUCCESS: Requested operation successful.`,
       data: {
-
         user: data
-
       }
 
     });
@@ -106,7 +101,7 @@ const addUser = async (req, res, next) => {
     console.log(`ERROR @ addUser -> user.controllers.js`, error);
 
     // returning response with an error message
-    return res.status(SERVER_ERROR).json({
+    return res.status(500).json({
 
       hasError: true,
       message: `ERROR: Requested operation failed.`,
@@ -122,17 +117,12 @@ const addUser = async (req, res, next) => {
 
 }
 
-// this controller takes data via incoming request body and creates a new user
-// in the database
+// this controller is used to Login the User
 const loginUser = async (req, res, next) => {
 
   try {
-    // fetching required data via incoming token data
-    // const { _id } = req.tokenData;
-
     const { status, data, error } = await userLoginService(
-      req.body,
-      (_id = new mongoose.Types.ObjectId())
+      req.body
     );
 
     // checking the result of the operation
@@ -151,14 +141,14 @@ const loginUser = async (req, res, next) => {
           error,
         },
       });
-    } else if (status === 401) {
-      // this code runs in case data service failed due to duplicate value
+    } else if (status === 404) {
+      // this code runs in case of User Not Found
 
       // logging error message to the console
-      console.log(`User Auth Failed.`);
+      console.log(`User Not Found.`);
 
       // returning the response with an error message
-      return res.status(401).json({
+      return res.status(404).json({
         hasError: true,
         message: `ERROR: Requested operation failed.`,
         error: {
@@ -169,7 +159,12 @@ const loginUser = async (req, res, next) => {
 
     // returning the response with success message
     return res.status(200).json({
-      jwt: data,
+      hasError: false,
+      message: `SUCCESS: Requested operation successful.`,
+      data: {
+        token: data
+      }
+
     });
   } catch (error) {
     return res.status(500).json({
@@ -184,7 +179,6 @@ const loginUser = async (req, res, next) => {
 }
 
 // this controller takes the data userId via incoming request and fetch the user
-//  using userId from the database and returns response
 const fetchSpecificUser = async (req, res, next) => {
 
   try {
@@ -192,14 +186,11 @@ const fetchSpecificUser = async (req, res, next) => {
     // fetching required data via path params of url
     const { userId } = req.params;
 
-    const { bearerPermissions } = req.tokenData
-
-
     // calling data service to fetching requested User from database
-    const { status, data, error } = await findUserById(userId, bearerPermissions);
+    const { status, data, error } = await findUserById(userId);
 
     // checking the result of the operation
-    if (status === SERVER_ERROR) {
+    if (status === 500) {
       // this code runs in case data service failed due to unknown database
       // error
 
@@ -207,7 +198,7 @@ const fetchSpecificUser = async (req, res, next) => {
       console.log(`Requested operation failed. Unknown database error.`);
 
       // returning the response with an error message
-      return res.status(SERVER_ERROR).json({
+      return res.status(500).json({
 
         hasError: true,
         message: `ERROR: Requested operation failed.`,
@@ -219,7 +210,7 @@ const fetchSpecificUser = async (req, res, next) => {
 
       });
 
-    } else if (status === NOT_FOUND) {
+    } else if (status === 404) {
       // this code runs in case data service could not find the requested
       // resource
 
@@ -227,7 +218,7 @@ const fetchSpecificUser = async (req, res, next) => {
       console.log(`Requested operation failed. User with not found.`);
 
       // returning the response with an error message
-      return res.status(NOT_FOUND).json({
+      return res.status(404).json({
 
         hasError: true,
         message: `ERROR: Requested operation failed.`,
@@ -242,7 +233,7 @@ const fetchSpecificUser = async (req, res, next) => {
     }
 
     // returning the response with success message
-    return res.status(SUCCESS).json({
+    return res.status(200).json({
 
       hasError: false,
       message: `SUCCESS: Requested operation successful.`,
@@ -261,7 +252,7 @@ const fetchSpecificUser = async (req, res, next) => {
     console.log(`ERROR @ fetchSpecificUser -> user.controllers.js`, error);
 
     // returning the response with an error message
-    return res.status(SERVER_ERROR).json({
+    return res.status(500).json({
 
       hasError: true,
       message: `ERROR: Requested operation failed.`,
@@ -277,7 +268,7 @@ const fetchSpecificUser = async (req, res, next) => {
 
 }
 
-// this controller get all the user from the database ad returns the response
+// this controller get all the user from the database and returns the response
 const getAllUsers = async (req, res, next) => {
 
   try {
@@ -286,7 +277,7 @@ const getAllUsers = async (req, res, next) => {
     const { status, data, error } = await findUsers(req.query);
 
     // checking the result of the operation
-    if (status === SERVER_ERROR) {
+    if (status === 500) {
       // this code runs in case data service failed due to unknown database
       // error
 
@@ -294,7 +285,7 @@ const getAllUsers = async (req, res, next) => {
       console.log(`Requested operation failed. Unknown database error.`);
 
       // returning the response with an error message
-      return res.status(SERVER_ERROR).json({
+      return res.status(500).json({
 
         hasError: true,
         message: `ERROR: Requested operation failed.`,
@@ -309,15 +300,16 @@ const getAllUsers = async (req, res, next) => {
     }
 
     // returning the response with success message
-    return res.status(SUCCESS).json({
+    return res.status(200).json({
 
       hasError: false,
       message: `SUCCESS: Requested operation successful.`,
       data: {
 
-        ...data
+        user: data
 
       }
+      
 
     });
 
@@ -328,7 +320,7 @@ const getAllUsers = async (req, res, next) => {
     console.log(`ERROR @ getAllUsers -> user.controllers.js`, error);
 
     // returning the response with an error message
-    return res.status(SERVER_ERROR).json({
+    return res.status(500).json({
 
       hasError: true,
       message: `ERROR: Requested operation failed.`,
@@ -353,14 +345,11 @@ const updateUserById = async (req, res, next) => {
     // fetching required data via path params of url
     const { userId } = req.params;
 
-    //  getting and assigning _updater from token data
-    const _updater = req.tokenData._id;
-
     // calling data service to update the requested user from database
-    const { status, data, error } = await findUserByIdAndUpdate(req.body, userId, _updater);
+    const { status, data, error } = await findUserByIdAndUpdate(req.body, userId);
 
     // checking the result of the operation
-    if (status === SERVER_ERROR) {
+    if (status === 500) {
       // this code runs in case data service failed due to unknown database
       // error
 
@@ -368,7 +357,7 @@ const updateUserById = async (req, res, next) => {
       console.log(`Requested operation failed. Unknown database error.`);
 
       // returning the response with an error message
-      return res.status(SERVER_ERROR).json({
+      return res.status(500).json({
 
         hasError: true,
         message: `ERROR: Requested operation failed.`,
@@ -380,7 +369,7 @@ const updateUserById = async (req, res, next) => {
 
       });
 
-    } else if (status === NOT_FOUND) {
+    } else if (status === 404) {
       // this code runs in case data service could not find the requested
       // resource
 
@@ -388,7 +377,7 @@ const updateUserById = async (req, res, next) => {
       console.log(`Requested operation failed. User not found.`);
 
       // returning the response with an error message
-      return res.status(NOT_FOUND).json({
+      return res.status(404).json({
 
         hasError: true,
         message: `ERROR: Requested operation failed.`,
@@ -403,7 +392,7 @@ const updateUserById = async (req, res, next) => {
     }
 
     // returning the response with success message
-    return res.status(SUCCESS).json({
+    return res.status(200).json({
 
       hasError: false,
       message: `SUCCESS: Requested operation successful.`,
@@ -422,7 +411,7 @@ const updateUserById = async (req, res, next) => {
     console.log(`ERROR @ updateUserById -> user.controllers.js`, error);
 
     // returning the response with an error message
-    return res.status(SERVER_ERROR).json({
+    return res.status(500).json({
 
       hasError: true,
       message: `ERROR: Requested operation failed.`,
@@ -447,16 +436,11 @@ const deleteUserById = async (req, res, next) => {
     // fetching required data via path params of url
     const { userId } = req.params;
 
-    //  creating Creator id for temporar use
-    const _updator = new mongoose.Types.ObjectId
-
-    let updateData = { isDeleted: true };
-
     // calling data service to update the requested user from database
-    const { status, data, error } = await findUserByIdAndUpdate(updateData, userId, _updator);
+    const { status, data, error } = await findUserByIdAndDelete(userId);
 
     // checking the result of the operation
-    if (status === SERVER_ERROR) {
+    if (status === 500) {
       // this code runs in case data service failed due to unknown database
       // error
 
@@ -464,7 +448,7 @@ const deleteUserById = async (req, res, next) => {
       console.log(`Requested operation failed. Unknown database error.`);
 
       // returning the response with an error message
-      return res.status(SERVER_ERROR).json({
+      return res.status(500).json({
 
         hasError: true,
         message: `ERROR: Requested operation failed.`,
@@ -476,7 +460,7 @@ const deleteUserById = async (req, res, next) => {
 
       });
 
-    } else if (status === NOT_FOUND) {
+    } else if (status === 404) {
       // this code runs in case data service could not find the requested
       // resource
 
@@ -484,7 +468,7 @@ const deleteUserById = async (req, res, next) => {
       console.log(`Requested operation failed. User not found.`);
 
       // returning the response with an error message
-      return res.status(NOT_FOUND).json({
+      return res.status(404).json({
 
         hasError: true,
         message: `ERROR: Requested operation failed.`,
@@ -499,11 +483,11 @@ const deleteUserById = async (req, res, next) => {
     }
 
     // returning the response with success message
-    return res.status(SUCCESS).json({
+    return res.status(200).json({
 
       hasError: false,
       message: `SUCCESS: Requested operation successful.`,
-      data: {}
+      data: data._id
 
     });
 
@@ -514,7 +498,7 @@ const deleteUserById = async (req, res, next) => {
     console.log(`ERROR @ deleteUserById -> user.controllers.js`, error);
 
     // returning the response with an error message
-    return res.status(SERVER_ERROR).json({
+    return res.status(500).json({
 
       hasError: true,
       message: `ERROR: Requested operation failed.`,
@@ -529,9 +513,6 @@ const deleteUserById = async (req, res, next) => {
   }
 
 }
-
-
-
 
 
 

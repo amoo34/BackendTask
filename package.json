@@ -4,7 +4,8 @@
   "description": "Default project template for NodeJS",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "script": "node seedScript.js"
   },
   "repository": {
     "type": "git",

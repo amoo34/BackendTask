@@ -1,27 +1,18 @@
 // importing required packages and modules
-// const { DateTime } = require(`luxon`)
 const mongoose = require(`mongoose`);
-// const { logWarning, console.log } = require(`dependencies/helpers/console.helpers`);
 
-// importing required config params
-// const { HTTP_STATUS_CODES: { , CREATED, NOT_FOUND, CONFLICT, SERVER_ERROR } } = require(`../config`);
-
-// importing required models
 const User = require(`../../api/models/user.model`);
+const bcrypt = require(`bcryptjs`)
+const JWT = require(`jsonwebtoken`)
 
-
-
-// this data service takes in data obj and _creater, saves user in database and
-// returns response to it's caller 
+// this data service is used to save user Data in Database
 const saveUser = async (userData) => {
 
   try {
 
     // creating object to store new user 
     const newUser = new User({
-
       ...userData
-
     });
 
     // saving user in the database
@@ -30,7 +21,7 @@ const saveUser = async (userData) => {
     // returning saved response to it's caller 
     return {
 
-      status: 401,
+      status: 201,
       data: result
 
     };
@@ -62,19 +53,13 @@ const saveUser = async (userData) => {
 
 }
 
-// this data service takes in the userId, fetch the user notes via userId and
-// returns the response to it's caller
+// this data service takes in the userId, and return specific user
 const findUserById = async (userId) => {
 
   try {
 
-
     const result = await User.findById(userId)
 
-    console.log("users data ",result)
-    // creating aggregation pipeline to query data
-   
-    // checking the result of the query
     if (!result) {
       // this code runs in case query didn't return anything from database
 
@@ -88,10 +73,10 @@ const findUserById = async (userId) => {
 
     }
 
-    // returning saved response to it's caller 
+    // returning response to it's caller 
     return {
 
-      status: SUCCESS,
+      status: 200,
       data: result
 
     };
@@ -120,16 +105,11 @@ const findUsers = async (queryMetadata) => {
   try {
 
     // fetching required data from query meta data
-    let { page = 0} = queryMetadata;
+    let { page = 1} = queryMetadata;
 
-
-    // 1-> setting sorting field and direction
-    // 2-> calculating query start record
-    // 3-> calculating the number of records in the current drawing of data
     const [ startRecord] = [parseInt(page) <= 1 ? 0 : parseInt((parseInt(page) - 1) * parseInt(10))];
 
-
-    // console.log("search query ", searchQuery)
+    const dataLimit = 30;
 
     let pipeline = [
        {
@@ -158,7 +138,7 @@ const findUsers = async (queryMetadata) => {
               '$skip': startRecord
             },
             {
-              '$limit': 10
+              '$limit': dataLimit
             }
           ]
         }
@@ -187,10 +167,9 @@ const findUsers = async (queryMetadata) => {
     // querying database for all users
     const { totalPages = 0, totalRecords = 0, users } = (await User.aggregate(pipeline).exec())[0];
 
-    // returning saved users to its caller
     return {
 
-      status: SUCCESS,
+      status: 200,
       data: {
 
         totalPages,
@@ -221,20 +200,22 @@ const findUsers = async (queryMetadata) => {
 
 }
 
-
+// this service is used to Login a User
 const userLoginService = async (bodyData, id) => {
   try {
+
     const user = await User.findOne({ email: bodyData.email });
 
     if (!user) {
       return {
-        status: 401,
-        error: "Auth Failed",
+        status: 404,
+        error: "User Not Found",
       };
     }
 
     // comparing password
     const isMatch = await bcrypt.compare(bodyData.password, user.password);
+
     if (isMatch) {
       let payload = {
         _id: user._id,
@@ -242,9 +223,9 @@ const userLoginService = async (bodyData, id) => {
         password: bodyData.password,
         role:user.role
       };
-      console.log(payload);
+
       const signToken = await JWT.sign(payload, "test");
-      console.log(signToken);
+      
       return {
         status: 200,
         data: signToken,
@@ -255,7 +236,9 @@ const userLoginService = async (bodyData, id) => {
         error: "Auth Failed",
       };
     }
+
   } catch (error) {
+    console.log("Error",error)
     return {
       status: 500,
       error: "User Login Failed",
@@ -271,14 +254,9 @@ const findUserByIdAndUpdate = async (updateData, userId) => {
 
     // creating an obj to store query config params
     const configParams = {
-
       new: true,
       runValidators: true
-
     };
-
-  
-
 
     // querying database for the requested user
     const result = await User.findOneAndUpdate({ _id: userId}, {...updateData}, configParams).lean().exec();
@@ -299,7 +277,7 @@ const findUserByIdAndUpdate = async (updateData, userId) => {
     // returning fetched data to its caller
     return {
 
-      status: SUCCESS,
+      status: 200,
       data: result
 
     };
@@ -331,19 +309,11 @@ const findUserByIdAndUpdate = async (updateData, userId) => {
 
 }
 
-const findUserByIdAndDelete = async (updateData, userId) => {
+// this service is used to delete User on the basis of Userid
+const findUserByIdAndDelete = async (userId) => {
 
   try {
 
-    // creating an obj to store query config params
-    const configParams = {
-
-      new: true,
-      runValidators: true
-
-    };
-
-  
     const userData = await User.findById(userId).lean();
 
     if (!userData) {
@@ -355,8 +325,7 @@ const findUserByIdAndDelete = async (updateData, userId) => {
       };
     }
 
-    const deletedUser = await TimeLog.findByIdAndDelete(timeLogId).lean();
-
+    const deletedUser = await User.findByIdAndDelete(userId).lean();
 
     // returning fetched data to its caller
     return {

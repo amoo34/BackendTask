@@ -21,7 +21,7 @@ const newUserSchema = Joi.object({
 // defining valdiation schema to add a user
 const loginUserSchema = Joi.object({
 
-  email: Joi.string().email().required(),
+  email: Joi.string().required(),
   password: Joi.string().required()
 
 });
@@ -36,12 +36,15 @@ const specificUserSchema = Joi.object({
 // defining valdiation schema to update a user
 const updateUserSchema = Joi.object({
 
+  _id: Joi.string().custom(objectIdValidation, `User ID Validation`).required(),
   name: Joi.string(),
   email: Joi.string(),
   password: Joi.string(),
   address: Joi.string(),
   phoneNo: Joi.string(),
-  role: Joi.string()
+  role: Joi.string(),
+  createdAt:Joi.string(),
+  updatedAt:Joi.string(),
 
 });
 

@@ -1,20 +1,14 @@
-/* mySeedScript.js */
-
-// require the necessary libraries
-const {faker} = require("faker");
+const {faker} = require("@faker-js/faker");
 const MongoClient = require("mongodb").MongoClient;
 
-function randomIntFromInterval(min, max) { // min and max included 
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
 
-async function seedDB() {
+async function addDummyData() {
     // Connection URL
     const uri = "mongodb://localhost:27017";
 
     const client = new MongoClient(uri, {
         useNewUrlParser: true,
-        // useUnifiedTopology: true,
+        useUnifiedTopology: true,
     });
 
     try {
@@ -23,11 +17,7 @@ async function seedDB() {
 
         const collection = client.db("testDatabase").collection("users");
 
-        // The drop() command destroys all data from a collection.
-        // Make sure you run it against proper database and collection.
-        collection.drop();
-
-        // make a bunch of time series data
+        // Initialize Dummy Users Data Array
         let usersData = [];
 
         for (let i = 0; i < 10000; i++) {
@@ -35,20 +25,20 @@ async function seedDB() {
                 name : faker.internet.userName(),
                 email : faker.internet.email(),
                 password : faker.internet.password(),
-                phoneNo :  	faker.phone.phoneNumber(),
+                phoneNo :  	faker.phone.number(),
                 role : "ADMIN",
                 address : faker.address.city()
             }
                 usersData.push(dummyUser);
           
         }
-        collection.insertMany(usersData);
+        await collection.insertMany(usersData);
 
-        console.log("Database seeded! :)");
         client.close();
     } catch (err) {
-        console.log(err.stack);
+        console.log(err);
+        client.close();
     }
 }
 
-seedDB();
+addDummyData();

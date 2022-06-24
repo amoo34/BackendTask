@@ -7,7 +7,7 @@ const { logInfo, logError } = require(`../../dependencies/helpers/console.helper
 
 const superAdmin = async (req, res, next) => {
   try {
-    const user = req.tokenData;
+    const user = req.userData;
     console.log('Super Admin');
     if (user.role === "ADMIN") {
       next();
