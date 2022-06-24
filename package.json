@@ -1,15 +1,11 @@
 {
-  "name": "nodejs-project-template",
+  "name": "nodejs-test-project",
   "version": "1.0.0",
-  "description": "Default project template for NodeJS",
+  "description": "",
   "main": "server.js",
   "scripts": {
     "start": "nodemon server.js",
     "script": "node seedScript.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/AHMED3T/nodejs-project-template.git"
   },
   "keywords": [
     "nodejs",
@@ -19,7 +15,7 @@
     "express",
     "template"
   ],
-  "author": "Ahmed Rasool",
+  "author": "Abdul Moiz",
   "license": "ISC",
   "dependencies": {
     "@faker-js/faker": "^7.3.0",
