@@ -14,12 +14,13 @@ const { addUser, loginUser, fetchSpecificUser, getAllUsers, updateUserById, dele
 
 
 
-// initting user router
+// iniatialize user Router
 const userRouter = express.Router();
 
 
 
 // -----------------------------------ROUTES--------------------------------------------------
+
 // Route to Login User
 userRouter.post(`/login`,  validateInput(loginUserSchema, `BODY`), loginUser);
 
