@@ -1,9 +1,5 @@
 // importing required packages and modules
 const mongoose = require('mongoose');
-const { logSuccess, logInfo, logError } = require('./console.helpers');
-
-// importing required config dependencies
-// const { MONGO_ATLAS_CONNECTION_URI } = require('../../dependencies/config');
 
 
 
@@ -28,14 +24,14 @@ const connectDatabase = async () => {
     await mongoose.connect("mongodb://localhost:27017/testDatabase", connectionConfig);
 
     // logging success messsage to the console
-    logSuccess(`Database connection successful.`);
+    console.log(`Database connection successful.`);
 
 
   } catch (error) {
     // this code runs in case of an error @ runtime
 
     // logging the error messages to the console
-    logError(`ERROR @ connectDatabase -> database.helpers.js`, error);
+    console.log(`ERROR @ connectDatabase -> database.helpers.js`, error);
 
     // exiting the current node process
     process.exit(1);
@@ -54,7 +50,7 @@ const disconnectDatabase = async () => {
     await mongoose.connection.close();
 
     // logging message to the console
-    logInfo(`Connection to database closed.`);
+    console.log(`Connection to database closed.`);
 
     // killing the current process
     process.exit();
@@ -63,7 +59,7 @@ const disconnectDatabase = async () => {
     // this code runs in case of an error @ runtime
 
     // logging error messages to the console
-    logError(`ERROR @ disconnectDatabase -> database.helpers.js`, error);
+    console.log(`ERROR @ disconnectDatabase -> database.helpers.js`, error);
 
   }
 

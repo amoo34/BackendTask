@@ -1,10 +1,3 @@
-// importing required packages and modules
-const { logInfo, logError } = require(`../../dependencies/helpers/console.helpers`);
-
-// importing required config params
-// const { ALLOWED_VALIDATION_SCHEMA_SCOPES: { BODY, PARAMS, NONE } } = require(`../../dependencies/config`);
-
-
 
 // this middleware takes in input schema and schema scope (body,
 // params) and returns a validation function which validates the

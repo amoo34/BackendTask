@@ -3,7 +3,7 @@ const express = require(`express`);
 
 // importing Required Middlewares
 const { authenticateRequest } = require(`../middlewares/authentication.middleware`);
-const { superAdmin } = require(`../middlewares/authorization.middleware`);
+const { adminAuth } = require(`../middlewares/authorization.middleware`);
 const { validateInput } = require(`../middlewares/input-validation.middleware`);
 
 // importing required schemas
@@ -27,16 +27,16 @@ userRouter.post(`/login`,  validateInput(loginUserSchema, `BODY`), loginUser);
 userRouter.post(`/addUser`,  validateInput(newUserSchema, `BODY`), addUser);
 
 // Route to get a Specific User
-userRouter.get(`/getUser/:userId`,authenticateRequest,validateInput(specificUserSchema, `PARAMS`), fetchSpecificUser);
+userRouter.get(`/getUser/:userId`, authenticateRequest, adminAuth, validateInput(specificUserSchema, `PARAMS`), fetchSpecificUser);
 
 // Route to get All Users
-userRouter.get(`/getUsers`, authenticateRequest, superAdmin, validateInput(allUsersSchema, `QUERY`), getAllUsers);
+userRouter.get(`/getUsers`, authenticateRequest, adminAuth, validateInput(allUsersSchema, `QUERY`), getAllUsers);
 
 // Route to update a Specific User
-userRouter.patch(`/updateUser/:userId`, authenticateRequest, validateInput(specificUserSchema, `PARAMS`), validateInput(updateUserSchema, `BODY`), updateUserById);
+userRouter.patch(`/updateUser/:userId`, authenticateRequest, adminAuth, validateInput(specificUserSchema, `PARAMS`), validateInput(updateUserSchema, `BODY`), updateUserById);
 
 // Route to Delete a Specific User
-userRouter.delete(`/deleteUser/:userId`,authenticateRequest,validateInput(specificUserSchema, `PARAMS`), deleteUserById);
+userRouter.delete(`/deleteUser/:userId`, authenticateRequest, adminAuth, validateInput(specificUserSchema, `PARAMS`), deleteUserById);
 
 
 

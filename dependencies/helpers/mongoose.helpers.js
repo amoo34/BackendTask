@@ -1,9 +1,6 @@
 // importing required modules
 const bcrypt = require(`bcryptjs`);
 
-// importing required log modules
-const { logInfo, logSuccess, logWarning, logError } = require(`./console.helpers`);
-
 
 
 // this helper hashes password string and returns it
@@ -18,7 +15,7 @@ const hashPassword = (v) => {
     // this code runs in case of an ERROR @ runtime
 
     // logging error messages to the console
-    logError(`ERROR @ hashPassword -> mongoose.helpers.js`, error);
+    console.log(`ERROR @ hashPassword -> mongoose.helpers.js`, error);
 
   }
 

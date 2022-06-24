@@ -1,11 +1,6 @@
-// importing required packages and modules
-const { logInfo, logError } = require(`../../dependencies/helpers/console.helpers`);
 
-// importing required config params
-// const { HTTP_STATUS_CODES: { UNAUTHORIZED, FORBIDDEN, SERVER_ERROR } } = require(`../../dependencies/config`);
-
-
-const superAdmin = async (req, res, next) => {
+// This Middleware is used for Admin authorization
+const adminAuth = async (req, res, next) => {
   try {
     const user = req.userData;
     console.log('Super Admin');
@@ -28,5 +23,5 @@ const superAdmin = async (req, res, next) => {
 // exporting as a module
 module.exports = {
 
-  superAdmin
+  adminAuth
 };

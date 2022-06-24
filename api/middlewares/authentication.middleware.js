@@ -2,27 +2,32 @@
 const jwt = require("jsonwebtoken")
 const User = require("../models/user.model")
 
+
+
 // this middleware authenticates incoming request and
 // allows/rejects access to the protected resources
 const authenticateRequest = async (req, res, next) => {
   try {
 
-    console.log(req.headers.authorization)
+    // Check token exist in the Headers
     if (!req.headers.authorization) {
       return res.status(400).json({
         message: `Authentication failed. Please use correct credentials.`,
         hasError: true
       });
     } else {
+
       /* FETCH FIRST PART OF THE TOKEN SENT IN HEADERS */
       const token = req.headers.authorization;
 
+      // Verify JWT TOKEN
       const decoded = jwt.verify(token, "test");
 
       req.userData = decoded;
-      console.log("req.user", req.userData);
+
       const userFound = await User.findById(decoded._id);
-      console.log(userFound);
+      
+      // If user is in the database then we move towards next middleware
       if (userFound) {
         next();
       } else {
@@ -33,7 +38,7 @@ const authenticateRequest = async (req, res, next) => {
       }
     }
   } catch (error) {
-    console.log("check auth error ", error);
+
     return res.status(401).json({
       hasError: true,
       message: `Auth Failed.`,

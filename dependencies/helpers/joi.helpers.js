@@ -1,9 +1,6 @@
 // importing required packages and modules
 const { isValidObjectId } = require(`mongoose`);
 
-// importing required config params
-
-
 
 // custom validator for incoming objectId value
 const objectIdValidation = (value, helpers) => {

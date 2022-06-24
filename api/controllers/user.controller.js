@@ -2,12 +2,6 @@
 // importing required packages and modules
 const mongoose = require(`mongoose`);
 
-// const { logWarning, console.log } = require(`dependencies/helpers/console.helpers`);
-
-
-// importing response status codes
-// const { HTTP_STATUS_CODES: { SUCCESS, CREATED, NOT_FOUND, BAD_REQUEST, CONFLICT, SERVER_ERROR } } = require(`../../dependencies/config`);
-
 // importing required data services
 const { saveUser, findUserById, findUsers,findUserByIdAndDelete, findUserByIdAndUpdate,userLoginService } = require(`../../dependencies/internal-services/user.services`);
 
